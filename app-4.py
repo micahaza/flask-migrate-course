@@ -137,7 +137,7 @@ def seed():
     return 'Done'
 
 
-@app.route('/user_with_data/', methods=['GET'])
+@app.route('/get_user/', methods=['GET'])
 def get_user_data():
     return jsonify(User.query.first().to_dict())
 
