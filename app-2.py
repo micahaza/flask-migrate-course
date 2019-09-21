@@ -3,9 +3,8 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://myuser:mypass@localhost/flask_migrate_demo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://demouser:demopass@localhost/flask_migrate_demo'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
 db = SQLAlchemy()
 migrate = Migrate()
