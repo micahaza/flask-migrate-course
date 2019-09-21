@@ -30,4 +30,5 @@ class User(db.Model):
 def index():
     return 'Hi everyone, happy coding! Welcome to another episode of get certified.'
 
+
 app.run()

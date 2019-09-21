@@ -6,6 +6,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://myuser:mypass@localhost/flask_m
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
 class User(db.Model):
 
     __tablename__ = 'users'
@@ -19,9 +20,10 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     active = db.Column(db.Boolean, nullable=False, default=False)
 
+
 @app.route('/', methods=['GET'])
 def index():
     return 'Hi everyone, happy coding! Welcome to another episode of get certified.'
 
-app.run()
 
+app.run()

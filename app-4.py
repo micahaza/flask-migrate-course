@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, json
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy, event
 from datetime import datetime
@@ -45,6 +45,19 @@ class User(db.Model, TimeStampMixin):
     email_verified = db.Column(db.Boolean, nullable=False, default=False)
     password_hash = db.Column(db.String(128))
     active = db.Column(db.Boolean, nullable=False, default=False)
+    courses = db.relationship("Course", lazy=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'email_verified': self.email_verified,
+            'active': self.active,
+            'courses': [c.to_dict() for c in self.courses]
+        }
 
 
 class Course(db.Model, TimeStampMixin):
@@ -55,6 +68,15 @@ class Course(db.Model, TimeStampMixin):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     title = db.Column(db.String(64), index=True, unique=True)
     active = db.Column(db.Boolean, nullable=False, default=False)
+    sections = db.relationship("Section", lazy=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'active': self.active,
+            'sections': [s.to_dict() for s in self.sections]
+        }
 
 
 class Section(db.Model, TimeStampMixin):
@@ -64,7 +86,13 @@ class Section(db.Model, TimeStampMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
-    lecture_id = db.Column(db.Integer, db.ForeignKey('lectures.id'))
+    lectures = db.relationship("Lecture", lazy=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title
+        }
 
 
 class Lecture(db.Model, TimeStampMixin):
@@ -74,12 +102,44 @@ class Lecture(db.Model, TimeStampMixin):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'))
     active = db.Column(db.Boolean, nullable=False, default=False)
 
 
 @app.route('/', methods=['GET'])
 def index():
     return 'Hi everyone, happy coding! Welcome to another episode of get certified.'
+
+
+@app.route('/seed', methods=['GET'])
+def seed():
+    user_data = '{"username": "test","first_name": "Test", "last_name": "User","email": "test_user@getcertified.io"}'
+    json_data = json.loads(user_data)
+    user = User(**json_data)
+
+    course_data = '{"title": "Flask-Migrate Course"}'
+    json_data = json.loads(course_data)
+    course = Course(**json_data)
+    user.courses.append(course)
+
+    section_data = '{"title": "Introduction"}'
+    json_data = json.loads(section_data)
+    section = Section(**json_data)
+    user.courses[0].sections.append(section)
+
+    section_data = '{"title": "What is Flask and Flask-Migrate?"}'
+    json_data = json.loads(section_data)
+    section = Section(**json_data)
+    user.courses[0].sections.append(section)
+
+    db.session.add(user)
+    db.session.commit()
+    return 'Done'
+
+
+@app.route('/user_with_data/', methods=['GET'])
+def get_user_data():
+    return jsonify(User.query.first().to_dict())
 
 
 app.run()
