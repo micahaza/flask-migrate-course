@@ -84,8 +84,9 @@ class Section(db.Model, TimeStampMixin):
     __tablename__ = 'sections'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64))
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
+    title = db.Column(db.String(64))
+    order = db.Column(db.Integer)
     lectures = db.relationship("Lecture", lazy=True)
 
     def to_dict(self):
@@ -99,11 +100,13 @@ class Lecture(db.Model, TimeStampMixin):
 
     __tablename__ = 'lectures'
 
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64))
+    id = db.Column(db.Integer, primary_key=True)    
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
     section_id = db.Column(db.Integer, db.ForeignKey('sections.id'))
-    active = db.Column(db.Boolean, nullable=False, default=False)
+    title = db.Column(db.String(64))
+    content = db.Column(db.Text)
+    order = db.Column(db.Integer)
+    
 
 
 @app.route('/', methods=['GET'])
